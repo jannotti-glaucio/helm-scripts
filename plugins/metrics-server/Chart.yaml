@@ -1,0 +1,4 @@
+apiVersion: v2
+description: Metrics Server is a cluster-wide aggregator of resource usage data.
+name: metrics-server
+version: 0.6.x

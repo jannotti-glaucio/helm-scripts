@@ -1,0 +1,18 @@
+{{- if .Values.service.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "app.name" . }}
+  namespace: {{ template "app.name" . }}
+  labels:
+    app: {{ template "app.name" . }}
+  {{- if .Values.service.annotations }}
+  annotations: {{- toYaml .Values.service.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports: {{- toYaml .Values.service.ports | nindent 4 }}
+  selector:
+    app: {{ template "app.name" . }}
+{{- end }}

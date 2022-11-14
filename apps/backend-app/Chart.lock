@@ -1,0 +1,6 @@
+dependencies:
+- name: backend-app
+  repository: file://../../charts/backend-app
+  version: 0.0.1
+digest: sha256:017354f48fa75e990d8d20a67346890079e1868bdafefa836da85bc5961d04a7
+generated: "2021-09-27T21:58:52.923008808-03:00"

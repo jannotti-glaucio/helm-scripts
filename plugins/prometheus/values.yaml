@@ -1,0 +1,8 @@
+prometheus:
+  server:
+    persistentVolume:
+      storageClass: gp2
+
+  alertmanager:
+    persistentVolume:
+      storageClass: gp2

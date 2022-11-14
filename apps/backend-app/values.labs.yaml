@@ -1,0 +1,59 @@
+backend-app:
+  app:
+    env: labs
+    ports:
+      - containerPort: 5001
+        name: http
+        protocol: TCP
+
+  image:
+    tag: 0.0.1
+    repository: $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/backend-app
+
+  serviceAccount:
+    create: false
+
+  service:
+    annotations: {}
+    ports:
+      - port: 80
+        targetPort: http
+
+  ingress:
+    enabled: true
+    className: alb
+    annotations:
+      alb.ingress.kubernetes.io/group.name: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:$AWS_REGION:$AWS_ACCOUNT:certificate/$ACM_CERTIFICATE
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/healthcheck-path: /api/status
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    hosts:
+      - hostname: $ROUTE53_DNS_DOMAIN
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 500Mi
+
+  healthcheck:
+    enabled: false
+    path: /healthcheck
+
+  hpa:
+    enabled: true
+    min: 1
+    max: 1
+    avgMemUtilization: 80
+    avgCPUUtilization: 80
+
+  configs:
+    DB_HOST: $RDS_ENDPOINT
+    DB_SCHEMA: backend-db
+
+  externalsecrets:
+    enabled: true
+    secretawsname: backend-app
+    secrettocreate: backend-app

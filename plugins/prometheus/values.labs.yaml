@@ -1,0 +1,8 @@
+prometheus:
+  server:
+    persistentVolume:
+      size: 20Gi
+
+  alertmanager:
+    persistentVolume:
+      size: 10Gi

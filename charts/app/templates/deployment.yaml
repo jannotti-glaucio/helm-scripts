@@ -1,0 +1,73 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "app.name" . }}
+  namespace: {{ template "app.name" . }}
+  labels:
+    app: {{ template "app.name" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "app.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "app.name" . }}
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ template "app.name" . }}
+      {{- else }}
+      serviceAccountName: default
+      {{- end }}
+      containers:
+      - name: {{ template "app.name" . }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports: {{- toYaml .Values.app.ports | nindent 10 }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        {{- if .Values.healthcheck.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.healthcheck.path }}
+            port: http
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.healthcheck.path }}
+            port: http
+        {{- end }}
+        {{- if .Values.externalsecrets.enabled }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.externalsecrets.secretawsname }}
+        {{- end }}
+        {{- if or .Values.secrets .Values.configs }}
+        env:
+        {{- range $key, $value := .Values.secrets }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.name" $ }}
+              key: {{ $key | quote }}
+        {{- end }}
+        {{- range $key, $value := .Values.configs }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            configMapKeyRef:
+              name: {{ template "app.name" $ }}
+              key: {{ $key | quote }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.secretVolume.enabled }}
+        volumeMounts:
+        - name: secret-volume
+          mountPath: {{ .Values.secretVolume.mountPath }}
+          readOnly: true
+        {{- end }}
+      {{- if .Values.secretVolume.enabled }}
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: {{ template "app.name" . }}-extra
+          items: {{- toYaml .Values.secretVolume.items | nindent 12 }}
+      {{- end }}

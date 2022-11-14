@@ -1,0 +1,9 @@
+cluster-autoscaler:
+  fullnameOverride: cluster-autoscaler
+  autoDiscovery:
+    clusterName: $EKS_CLUSTER_NAME
+
+  rbac:
+    serviceAccount:
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::$AWS_ACCOUNT:role/cluster-autoscaler

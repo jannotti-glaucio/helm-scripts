@@ -1,0 +1,35 @@
+{{- if .Values.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ template "app.name" . }}
+  namespace: {{ template "app.name" . }}
+  {{- if .Values.ingress.annotations }}
+  annotations: {{- toYaml .Values.ingress.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+  {{ range $host := .Values.ingress.hosts }}
+  - host: {{ $host.hostname }}
+    http:
+      paths:
+      {{- if eq $.Values.ingress.className "alb" }}
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ssl-redirect
+            port:
+              name: use-annotation
+      {{- end }}
+      - path: {{ $host.path | default "/" }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ template "app.name" $ }}
+            port:
+              number: {{ $host.servicePort | default "80" }}
+  {{- end }}
+{{- end }}

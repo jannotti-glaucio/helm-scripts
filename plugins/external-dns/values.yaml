@@ -1,0 +1,10 @@
+external-dns:
+  aws:
+    region: $AWS_REGION
+    zoneType: public
+
+  txtPrefix: external-dns-
+
+  podSecurityContext:
+    fsGroup: 65534
+    runAsUser: 0

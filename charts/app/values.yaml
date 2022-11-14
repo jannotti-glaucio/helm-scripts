@@ -1,0 +1,52 @@
+nameOverride: ""
+
+image:
+  pullPolicy: Always
+  repository: nginx
+  tag: latest
+
+app:
+  env: "<env>"
+  ports:
+  - containerPort: 80
+    name: http
+    protocol: TCP
+
+serviceAccount:
+  create: false
+
+service:
+  enabled: true
+  type: ClusterIP
+  annotations: {}
+  ports:
+  - port: 80
+    targetPort: http
+
+ingress:
+  enabled: false
+  annotations: {}
+  className: my-class-name
+  hosts:
+  - hostname: app.example.com
+    servicePort: 80
+
+resources: {}
+
+healthcheck:
+  enabled: false
+  path: /healthcheck
+
+hpa:
+  enabled: false
+  min: 1
+  max: 1
+  avgMemUtilization: 80
+  avgCPUUtilization: 80
+
+secrets: {}
+configs: {}
+
+secretVolume:
+  enabled: false
+  items: []

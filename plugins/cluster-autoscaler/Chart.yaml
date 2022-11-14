@@ -1,0 +1,10 @@
+---
+apiVersion: v2
+type: application
+name: cluster-autoscaler
+description: Scales Kubernetes worker nodes within autoscaling groups.
+version: 9.10.5
+dependencies:
+- name: cluster-autoscaler
+  version: 9.10.5
+  repository: https://kubernetes.github.io/autoscaler
